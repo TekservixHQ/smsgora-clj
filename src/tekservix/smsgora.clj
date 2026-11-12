@@ -39,6 +39,9 @@
                                  :else v))
                    x)))
 
+(defn- ->Long ^Long [x] (when (some? x) (Long/valueOf (long x))))
+(defn- ->Integer ^Integer [x] (when (some? x) (Integer/valueOf (int x))))
+
 (defn client
   "Creates a client. Options: :base-url, :timeout-ms (default 30000).
 
@@ -61,7 +64,7 @@
   ([^SmsGora c to message] (call (.sendSms c ^String to ^String message)))
   ([^SmsGora c {:keys [to message device-id sim-slot schedule-at]}]
    (call (.sendSms c ^java.util.List (vec (if (string? to) [to] to)) ^String message
-                   (some-> device-id long Long/valueOf) (some-> sim-slot int Integer/valueOf)
+                   (->Long device-id) (->Integer sim-slot)
                    ^String schedule-at))))
 
 (defn send-bulk-sms
@@ -76,7 +79,7 @@
   [^SmsGora c & [filters]] (call (.listMessages c ^java.util.Map (stringify filters))))
 (defn list-received-sms "Incoming SMS for one phone (or all with nil device-id)."
   [^SmsGora c & [device-id filters]]
-  (call (.listReceivedSms c (some-> device-id long Long/valueOf) ^java.util.Map (stringify filters))))
+  (call (.listReceivedSms c (->Long device-id) ^java.util.Map (stringify filters))))
 (defn get-batch "A bulk batch." [^SmsGora c id] (call (.getBatch c (long id))))
 (defn list-devices "Your linked phones." [^SmsGora c] (call (.listDevices c)))
 (defn get-device "One phone." [^SmsGora c id] (call (.getDevice c (long id))))
@@ -85,7 +88,7 @@
 (defn create-webhook "Adds a webhook. events default to [\"sms.received\"]."
   [^SmsGora c url & [events device-id]]
   (call (.createWebhook c ^String url ^java.util.List (vec (or events ["sms.received"]))
-                        (some-> device-id long Long/valueOf))))
+                        (->Long device-id))))
 (defn delete-webhook "Removes a webhook." [^SmsGora c id] (call (.deleteWebhook c (long id))))
 (defn request "Any other API call: (request sms :get \"/batches/311\")."
   [^SmsGora c method path & [body]]
