@@ -43,5 +43,5 @@ jobs:
           test "v$v" = "$GITHUB_REF_NAME" || { echo "tag $GITHUB_REF_NAME != project $v"; exit 1; }
       - run: lein deploy clojars
         env:
-          CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
+          CLOJARS_USERNAME: tekservix
           CLOJARS_PASSWORD: ${{ secrets.CLOJARS_DEPLOY_TOKEN }}
